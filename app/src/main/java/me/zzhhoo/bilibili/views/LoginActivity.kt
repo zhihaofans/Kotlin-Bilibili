@@ -37,6 +37,7 @@ import com.orhanobut.logger.Logger
 import io.zhihao.library.android.kotlinEx.isNotNullAndEmpty
 import me.zzhhoo.bilibili.gson.LoginQrcodeResultGson
 import me.zzhhoo.bilibili.services.HttpService
+import me.zzhhoo.bilibili.services.LoginService
 import me.zzhhoo.bilibili.util.QRcodeUtil
 import me.zzhhoo.bilibili.views.ui.theme.BilibiliTheme
 import okio.use
@@ -45,9 +46,12 @@ import java.net.URL
 
 
 class LoginActivity : ComponentActivity() {
+    private val Login = LoginService()
     private val Http = HttpService()
     private val gson = Gson()
     private val QRcode = QRcodeUtil()
+    private var isSuccess = false
+    private var loginQrcodeKey = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Thread {
@@ -120,6 +124,8 @@ class LoginActivity : ComponentActivity() {
             Logger.d("init.finish$success$qrcodeKey")
             Logger.d(success)
             Logger.d(qrcodeKey)
+            isSuccess = success
+            loginQrcodeKey = qrcodeKey
             if (success) {
                 val qrcodeData =
                     QRcode.createQRCode("https://passport.bilibili.com/h5-app/passport/login/scan?navhide=1&qrcode_key=${qrcodeKey}")
@@ -174,6 +180,12 @@ class LoginActivity : ComponentActivity() {
                     onClick = {
                         /*TODO*/
                         showToast("请等待二维码加载完成")
+                        if (isSuccess) {
+                            checkQrcodeScan()
+                        } else {
+
+                            showToast("请等待二维码加载完成")
+                        }
                     }
                 ) {
                     Text("已经扫码")
@@ -191,6 +203,32 @@ class LoginActivity : ComponentActivity() {
             }
         }
 
+    }
+
+    private fun checkQrcodeScan() {
+        if (loginQrcodeKey.isNotNullAndEmpty()) {
+            showToast(loginQrcodeKey)
+            Login.checkQrcodeStatus(loginQrcodeKey) { result ->
+                val codeStr = mapOf<Int, String>(
+                    0 to "扫码登录成功",
+                    86038 to "二维码已失效",
+                    86090 to "二维码已扫码未确认",
+                    86101 to "未扫码"
+                )
+                if (result?.data == null) {
+                    showToast("获取扫码结果失败")
+                } else {
+                    val data = result.data
+                    if (data.code == 0) {
+
+                    } else {
+                        showToast(data.message )
+                    }
+                }
+            }
+        } else {
+            showToast("空白qrcodeKey")
+        }
     }
 
     private fun showToast(text: String) {

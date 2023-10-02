@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.orhanobut.logger.Logger
 import io.zhihao.library.android.kotlinEx.isNotNullAndEmpty
 import me.zzhhoo.bilibili.data.LoginData
+import me.zzhhoo.bilibili.gson.LoginQrcodeCheckResultGson
 import me.zzhhoo.bilibili.gson.LoginQrcodeResultGson
 import okio.use
 
@@ -16,6 +17,26 @@ class LoginService {
                 .use { resp ->
 
                 }
+    }
+
+    fun checkQrcodeStatus(
+        qrcodeKey: String,
+        callback: (result: LoginQrcodeCheckResultGson?) -> Unit
+    ) {
+        Http.getCallback("https://passport.bilibili.com/x/passport-login/web/qrcode/poll")
+            .use { resp ->
+                val httpBody = resp.body
+                val httpString = httpBody?.string()
+                if (httpBody == null || httpString.isNotNullAndEmpty()) {
+                    callback.invoke(null)
+                } else {
+                    val qrcodeData = gson.fromJson(
+                        httpString,
+                        LoginQrcodeCheckResultGson::class.java
+                    )
+                    callback.invoke(qrcodeData ?: null)
+                }
+            }
     }
 
     fun isLogin(): Boolean {

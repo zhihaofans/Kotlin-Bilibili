@@ -3,6 +3,7 @@ package me.zzhhoo.bilibili.views
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -90,8 +91,12 @@ class MainActivity : ComponentActivity() {
         Button(modifier = Modifier.layoutId("button_login"),
             onClick = {
                 /*TODO*/
-                val navigate = Intent(this@MainActivity, LoginActivity::class.java)
-                startActivity(navigate)
+                if (LoginService().isLogin()) {
+                    showToast("已登录")
+                } else {
+                    val navigate = Intent(this@MainActivity, LoginActivity::class.java)
+                    startActivity(navigate)
+                }
             }
         ) {
             Text("登录Bilibili")
@@ -125,20 +130,8 @@ class MainActivity : ComponentActivity() {
             Text("历史")
         }
     }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BilibiliTheme {
-        Greeting("Android")
+    private fun showToast(text: String) {
+        Toast.makeText(this@MainActivity, text, Toast.LENGTH_SHORT).show()
     }
 }
