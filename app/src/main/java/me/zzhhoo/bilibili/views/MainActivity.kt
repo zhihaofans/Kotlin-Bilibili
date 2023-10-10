@@ -16,20 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.gson.Gson
-import com.orhanobut.logger.Logger
-import me.zzhhoo.bilibili.gson.LoginQrcodeResultGson
 import me.zzhhoo.bilibili.services.LoginService
 import me.zzhhoo.bilibili.ui.theme.BilibiliTheme
-import okhttp3.CacheControl
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import okio.IOException
+import me.zzhhoo.bilibili.util.ViewUtil
 
 class MainActivity : ComponentActivity() {
+    private val viewUtil = ViewUtil(this@MainActivity)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -87,48 +79,20 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun initContentView() {
-
-        Button(modifier = Modifier.layoutId("button_login"),
-            onClick = {
-                /*TODO*/
-                if (LoginService().isLogin()) {
-                    showToast("已登录")
-                } else {
-                    val navigate = Intent(this@MainActivity, LoginActivity::class.java)
-                    startActivity(navigate)
-                }
+        viewUtil.getButton(id = "button_login", title = "登录Bilibili") {
+            /*TODO*/
+            if (LoginService().isLogin()) {
+                showToast("已登录")
+            } else {
+                val navigate = Intent(this@MainActivity, LoginActivity::class.java)
+                startActivity(navigate)
             }
-        ) {
-            Text("登录Bilibili")
         }
-
-        Button(modifier = Modifier.layoutId("button_app"),
-            onClick = { /*TODO*/ }
-        ) {
-            Text("应用管理")
-        }
-
-        Button(modifier = Modifier.layoutId("button_dynamic"),
-            onClick = { /*TODO*/ }
-        ) {
-            Text("动态")
-        }
-
-        Button(modifier = Modifier.layoutId("button_fav"),
-            onClick = { /*TODO*/ }
-        ) {
-            Text("收藏")
-        }
-        Button(modifier = Modifier.layoutId("button_later2watch"),
-            onClick = { /*TODO*/ }
-        ) {
-            Text("稍后再看")
-        }
-        Button(modifier = Modifier.layoutId("button_history"),
-            onClick = { /*TODO*/ }
-        ) {
-            Text("历史")
-        }
+        viewUtil.getButton(id = "button_app", title = "应用管理") {}
+        viewUtil.getButton(id = "button_dynamic", title = "动态") {}
+        viewUtil.getButton(id = "button_fav", title = "收藏") {}
+        viewUtil.getButton(id = "button_later2watch", title = "稍后再看") {}
+        viewUtil.getButton(id = "button_history", title = "历史") {}
     }
 
     private fun showToast(text: String) {

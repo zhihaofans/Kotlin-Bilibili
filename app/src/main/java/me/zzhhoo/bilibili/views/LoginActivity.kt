@@ -35,13 +35,14 @@ import androidx.compose.ui.unit.dp
 import com.google.gson.Gson
 import com.orhanobut.logger.Logger
 import io.zhihao.library.android.kotlinEx.isNotNullAndEmpty
+import io.zhihao.library.android.util.AlertUtil
+import io.zhihao.library.android.util.ToastUtil
 import me.zzhhoo.bilibili.gson.LoginQrcodeResultGson
 import me.zzhhoo.bilibili.services.HttpService
 import me.zzhhoo.bilibili.services.LoginService
 import me.zzhhoo.bilibili.util.QRcodeUtil
 import me.zzhhoo.bilibili.views.ui.theme.BilibiliTheme
 import okio.use
-import java.io.InputStream
 import java.net.URL
 
 
@@ -50,10 +51,30 @@ class LoginActivity : ComponentActivity() {
     private val Http = HttpService()
     private val gson = Gson()
     private val QRcode = QRcodeUtil()
+    private val alertUtil = AlertUtil(this)
+    private val toastUtil = ToastUtil(this)
     private var isSuccess = false
     private var loginQrcodeKey = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        init()
+    }
+
+    private fun inputLoginData() {
+        alertUtil.showInputAlert("输入Cookie") { inputCookie, _ ->
+            if (inputCookie.isNotNullAndEmpty()) {
+                val success: Boolean = Login.inputLoginData(cookie = inputCookie)["cookie"] ?: false
+                if (success) {
+                    toastUtil.showShortToast("输入Cookie:成功")
+                } else {
+
+                    toastUtil.showShortToast("输入Cookie:失败")
+                }
+            }
+        }
+    }
+
+    private fun loginByQRcode() {
         Thread {
             val url = URL("https://http.cat/images/404.jpg")
             val imageData = url.openConnection().getInputStream()
@@ -71,8 +92,29 @@ class LoginActivity : ComponentActivity() {
         }.start()
     }
 
-    private fun init(callback: (success: Boolean, qrcodeKey: String) -> Unit) {
-        showToast("正在加载二维码")
+    private fun init() {
+        setContent {
+            Text(text = "加载中")
+        }
+        if (Login.isLogin()) {
+            toastUtil.showLongToast("已登录")
+        } else {
+
+            alertUtil.showListAlert(
+                title = "登录方式",
+                itemList = arrayOf("输入Cookie与Access Key", "扫码登录(未完善)")
+            ) { _, idx ->
+                when (idx) {
+                    0 -> inputLoginData()
+                    1 -> loginByQRcode()
+                    else -> toastUtil.showShortToast("不支持")
+                }
+            }
+        }
+    }
+
+    private fun iniQrcodeData(callback: (success: Boolean, qrcodeKey: String) -> Unit) {
+        toastUtil.showShortToast("正在加载二维码")
         Thread {
             Http.getCallback("https://passport.bilibili.com/x/passport-login/web/qrcode/generate")
                 .use { resp ->
@@ -82,7 +124,7 @@ class LoginActivity : ComponentActivity() {
                     runOnUiThread {
                         Logger.d(httpString)
                         if (httpBody == null) {
-                            showToast("错误，返回空白信息")
+                            toastUtil.showShortToast("错误，返回空白信息")
                             callback.invoke(false, "")
                         } else {
                             try {
@@ -98,13 +140,13 @@ class LoginActivity : ComponentActivity() {
                                         callback.invoke(false, "")
                                     }
                                 } else {
-                                    showToast("加载失败，得到空白结果")
+                                    toastUtil.showShortToast("加载失败，得到空白结果")
                                     callback.invoke(false, "")
                                 }
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 Logger.e(e.message!!)
-                                showToast("加载失败，得到错误结果")
+                                toastUtil.showShortToast("加载失败，得到错误结果")
                                 callback.invoke(false, "")
                             }
                         }
@@ -120,7 +162,7 @@ class LoginActivity : ComponentActivity() {
         val imageBitmap: MutableState<ImageBitmap> = remember {
             mutableStateOf(image)
         }
-        init() { success: Boolean, qrcodeKey: String ->
+        iniQrcodeData() { success: Boolean, qrcodeKey: String ->
             Logger.d("init.finish$success$qrcodeKey")
             Logger.d(success)
             Logger.d(qrcodeKey)
@@ -135,7 +177,6 @@ class LoginActivity : ComponentActivity() {
                     showToast("生成二维码失败：空白")
                 }
             }
-
             Logger.d("init.finish.finish")
         }
         Scaffold(
@@ -222,7 +263,7 @@ class LoginActivity : ComponentActivity() {
                     if (data.code == 0) {
 
                     } else {
-                        showToast(data.message )
+                        showToast(data.message)
                     }
                 }
             }

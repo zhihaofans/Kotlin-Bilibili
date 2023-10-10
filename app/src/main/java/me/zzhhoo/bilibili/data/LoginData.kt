@@ -9,7 +9,16 @@ class LoginData {
     fun getCookie(): String? {
         return SP.getString("cookie")
     }
-    fun setCookie(cookie:String){
-        SP.putString("cookie",cookie)
+
+    fun setCookie(cookie: String): Boolean {
+        return SP.putString("cookie", cookie)
+    }
+
+    fun getAccessKey(): String? {
+        return SP.getString("access_key")
+    }
+
+    fun setAccessKey(accessKey: String): Boolean {
+        return SP.putString("access_key", accessKey)
     }
 }

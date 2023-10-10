@@ -42,4 +42,16 @@ class LoginService {
     fun isLogin(): Boolean {
         return LoginData().getCookie().isNotNullAndEmpty()
     }
+
+    fun inputLoginData(cookie: String? = null, accessKey: String? = null): Map<String, Boolean> {
+        var cookieSuccess = false
+        var accessKeySuccess = false
+        if (cookie.isNotNullAndEmpty()) {
+            cookieSuccess = LoginData().setCookie(cookie!!)
+        }
+        if (accessKey.isNotNullAndEmpty()) {
+            accessKeySuccess = LoginData().setAccessKey(accessKey!!)
+        }
+        return mapOf("cookie" to cookieSuccess, "access_key" to accessKeySuccess)
+    }
 }
