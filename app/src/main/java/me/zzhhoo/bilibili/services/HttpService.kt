@@ -1,13 +1,15 @@
 package me.zzhhoo.bilibili.services
 
-import okhttp3.Callback
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
-import okhttp3.ResponseBody
 import java.io.IOException
+import java.net.URL
 
 
 class HttpService {
@@ -30,10 +32,13 @@ class HttpService {
     }
 
     @Throws(IOException::class)
-    fun getCallback(url: String): Response {
-        val request: Request = Request.Builder()
+    fun getCallback(url: String, headers: Map<String, String>? = null): Response {
+        val requestBuilder = Request.Builder()
             .url(url)
-            .build()
+        headers?.map {
+            requestBuilder.addHeader(it.key, it.value)
+        }
+        val request = requestBuilder.build()
         return client.newCall(request).execute()
         /* .use { response ->
              val body = response.body
@@ -52,5 +57,52 @@ class HttpService {
             .post(body.toRequestBody(mediaType))
             .build()
         client.newCall(request).execute().use { response -> return response.body!!.string() }
+    }
+
+    fun createCookies(
+        url: String,
+        cookiesName: String,
+        cookiesValue: String,
+        httpOnly: Boolean = true,
+        secure: Boolean = true
+    ): Cookie {
+        val mUrl = URL(url)
+        return createCookies(mUrl.host, mUrl.path, cookiesName, cookiesValue, httpOnly, secure)
+    }
+
+    fun createCookies(
+        domain: String,
+        path: String,
+        cookiesName: String,
+        cookiesValue: String,
+        httpOnly: Boolean = true,
+        secure: Boolean = true
+    ): Cookie {
+        return Cookie.Builder()
+            .domain(domain)
+            .path(path)
+            .name(cookiesName)
+            .value(cookiesValue)
+            .apply {
+                if (httpOnly) httpOnly()
+                if (secure) secure()
+            }
+            .build()
+    }
+
+    fun getCookie() {
+        val client: OkHttpClient = OkHttpClient.Builder()
+            .cookieJar(object : CookieJar {
+                private val cookieStore = HashMap<HttpUrl, List<Cookie>>()
+                override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+                    cookieStore[url] = cookies
+                }
+
+                override fun loadForRequest(url: HttpUrl): List<Cookie> {
+                    val cookies = cookieStore[url]
+                    return cookies ?: ArrayList()
+                }
+            })
+            .build()
     }
 }
