@@ -70,7 +70,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.datastore:datastore-preferences:${DATASTORE_VERSION}")
-    implementation("androidx.datastore:datastore-preferences-core:${DATASTORE_VERSION}")
     // Http库OkHttp <https://github.com/square/okhttp>
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     // Log库Logger <https://github.com/orhanobut/logger>
@@ -92,5 +91,7 @@ dependencies {
     // 二维码库Zxing <https://github.com/zxing/zxing>
     // 使用参考 <https://github.com/Tamsiree/RxTool/blob/master/RxFeature/src/main/java/com/tamsiree/rxfeature/tool/RxQRCode.kt>
     implementation("com.google.zxing:core:3.5.2")
+
+
 
 }
