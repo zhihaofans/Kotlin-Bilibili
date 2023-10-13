@@ -23,13 +23,15 @@ class LoginService {
         qrcodeKey: String,
         callback: (result: LoginQrcodeCheckResultGson?) -> Unit
     ) {
-        Http.getCallback("https://passport.bilibili.com/x/passport-login/web/qrcode/poll")
+        Http.getCallback("https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key=${qrcodeKey}")
             .use { resp ->
                 val httpBody = resp.body
                 val httpString = httpBody?.string()
-                if (httpBody == null || httpString.isNotNullAndEmpty()) {
+                if (httpBody == null || httpString.isNullOrEmpty()) {
+                    Logger.e("checkQrcodeStatus.result==null")
                     callback.invoke(null)
                 } else {
+                    Logger.w(httpString)
                     val qrcodeData = gson.fromJson(
                         httpString,
                         LoginQrcodeCheckResultGson::class.java

@@ -27,7 +27,7 @@ data class LoginQrcodeCheckResultGson(
 data class LoginQrcodeCheckDataGson(
     val url: String,
     val refresh_token: String,
-    val timestamp: Int,
+    // val timestamp: Int,
     val code: Int,
     val message: String
 )
