@@ -17,11 +17,16 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.orhanobut.logger.Logger
+import io.zhihao.library.android.kotlinEx.isNotNullAndEmpty
 import io.zhihao.library.android.util.AlertUtil
+import io.zhihao.library.android.util.AppUtil
+import io.zhihao.library.android.util.EncodeUtil
+import io.zhihao.library.android.util.IntentUtil
 import io.zhihao.library.android.util.ToastUtil
 import me.zzhhoo.bilibili.data.LoginData
 import me.zzhhoo.bilibili.services.LoginService
 import me.zzhhoo.bilibili.util.ViewUtil
+import me.zzhhoo.bilibili.util.startActivity
 import me.zzhhoo.bilibili.views.ui.theme.BilibiliTheme
 import java.net.URI
 
@@ -63,7 +68,15 @@ class MainActivity : ComponentActivity() {
                     },
                     floatingActionButton = {
                         viewUtil.getFab(Icons.Default.Search, "搜索") {
-
+                            alertUtil.showInputAlert("Bilibili搜索", "") { text, dialog ->
+                                if (text.isNotNullAndEmpty()) {
+                                    val searchUrl =
+                                        "bilibili://search?keyword=" + EncodeUtil.urlEncode(text)
+                                    startActivity(IntentUtil.getOpenWebBrowserIntent(searchUrl))
+                                } else {
+                                    toastUtil.showShortToast("不能搜索空白")
+                                }
+                            }
                         }
                     }) {}
                 Spacer(modifier = Modifier.requiredHeight(10.dp))
@@ -83,31 +96,32 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun initContentView() {
         val isLogin = LoginService().isLogin()
-        viewUtil.getButton(
-            id = "button_login", title = "登录Bilibili" + if (isLogin) {
+        val listItem = listOf(
+            "登录Bilibili" + if (isLogin) {
                 "(已登录)"
             } else {
                 "(未登录)"
-            }
-        ) {
-            /*TODO*/
+            },
+            "下载",
+            "动态",
+            "收藏",
+            "稍后再看",
+            "历史"
+        )
+        viewUtil.getListView(listItem) { idx, text ->
+            when (idx) {
+                0 -> {
+
 //            if (!LoginService().isLogin()) {
 //                toastUtil.showShortToast("已登录")
 //            } else {
-            val navigate = Intent(this@MainActivity, LoginActivity::class.java)
-            startActivity(navigate)
+                    startActivity(LoginActivity::class.java)
 //            }
+                }
+
+                1 -> startActivity(DownloadActivity::class.java)
+            }
         }
-        viewUtil.getButton(id = "button_download", title = "下载") {
-            val dataUrl =
-                "https://passport.biligame.com/crossDomain?DedeUserID=***\\u0026DedeUserID__ckMd5=***\\u0026Expires=***\\u0026SESSDATA=***\\u0026bili_jct=***\\u0026gourl=https%3A%2F%2Fpassport.bilibili.com"
-            val url = URI(dataUrl)
-            Logger.d(url.query)
-        }
-        viewUtil.getButton(id = "button_dynamic", title = "动态") {}
-        viewUtil.getButton(id = "button_fav", title = "收藏") {}
-        viewUtil.getButton(id = "button_later2watch", title = "稍后再看") {}
-        viewUtil.getButton(id = "button_history", title = "历史") {}
     }
 
 }
