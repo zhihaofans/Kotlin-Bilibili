@@ -17,11 +17,15 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".views.DownloadActivity"
+            android:exported="false"
+            android:label="@string/title_activity_download"
+            android:theme="@style/Theme.Bilibili" />
+        <activity
             android:name=".views.LoginActivity"
             android:exported="false"
             android:label="@string/title_activity_login"
-            android:theme="@style/Theme.Bilibili" />
-        <!-- 允许明文流量的请求 -->
+            android:theme="@style/Theme.Bilibili" /> <!-- 允许明文流量的请求 -->
         <activity
             android:name=".views.MainActivity"
             android:exported="true"

@@ -25,6 +25,7 @@ import io.zhihao.library.android.util.IntentUtil
 import io.zhihao.library.android.util.ToastUtil
 import me.zzhhoo.bilibili.data.LoginData
 import me.zzhhoo.bilibili.services.LoginService
+import me.zzhhoo.bilibili.services.VipService
 import me.zzhhoo.bilibili.util.ViewUtil
 import me.zzhhoo.bilibili.util.startActivity
 import me.zzhhoo.bilibili.views.ui.theme.BilibiliTheme
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
     private val alertUtil = AlertUtil(this)
     private val toastUtil = ToastUtil(this)
     private val viewUtil = ViewUtil(this)
+    private val vipService = VipService()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -103,10 +105,7 @@ class MainActivity : ComponentActivity() {
                 "(未登录)"
             },
             "下载",
-            "动态",
-            "收藏",
-            "稍后再看",
-            "历史"
+            "大会员大积分签到"
         )
         viewUtil.getListView(listItem) { idx, text ->
             when (idx) {
@@ -120,6 +119,22 @@ class MainActivity : ComponentActivity() {
                 }
 
                 1 -> startActivity(DownloadActivity::class.java)
+                2 -> {
+                    Thread {
+                        vipService.scoreTaskSign { result ->
+                            runOnUiThread {
+                                if (result?.code == 0) {
+                                    toastUtil.showShortToast("签到成功")
+                                } else {
+                                    alertUtil.showInputAlert(
+                                        "签到失败",
+                                        result?.message ?: "未知错误"
+                                    ) { _, _ -> }
+                                }
+                            }
+                        }
+                    }.start()
+                }
             }
         }
     }
