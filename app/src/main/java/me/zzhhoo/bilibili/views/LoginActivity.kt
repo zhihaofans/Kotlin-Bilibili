@@ -260,14 +260,14 @@ class LoginActivity : ComponentActivity() {
             Thread {
                 loginService.checkQrcodeStatus(loginQrcodeKey) { result ->
                     Logger.d(result)
-                    val codeStr = mapOf<Int, String>(
+                    val codeStr = mapOf(
                         0 to "扫码登录成功",
                         86038 to "二维码已失效",
                         86090 to "二维码已扫码未确认",
                         86101 to "未扫码"
                     )
                     if (result?.data == null) {
-                        showToast("获取扫码结果失败")
+                        toastUtil.showShortToast("获取扫码结果失败")
                     } else {
                         val data = result.data
                         if (data.code == 0) {
@@ -279,6 +279,7 @@ class LoginActivity : ComponentActivity() {
                             val expiresTime = urlUtil.getQuery("Expires")
                             val biliJct = urlUtil.getQuery("bili_jct")
                             val goUrl = urlUtil.getQuery("gourl")
+                            LoginData().setCsrf(biliJct ?: "")
                             val setSuccess =
                                 LoginData().setCookie("DedeUserID=${uid};DedeUserID__ckMd5=${uidMd5};SESSDATA=${sessdata};bili_jct=${biliJct}")
 
