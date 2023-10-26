@@ -1,11 +1,15 @@
 package me.zzhhoo.bilibili.services
 
+import io.zhihao.library.android.kotlinEx.isNotNullAndEmpty
 import okhttp3.Cookie
 import okhttp3.CookieJar
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
+import okhttp3.FormBody
+import okhttp3.HttpUrl
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.IOException
@@ -59,6 +63,32 @@ class HttpService {
         client.newCall(request).execute().use { response -> return response.body!!.string() }
     }
 
+    @Throws(IOException::class)
+    fun postCallback(
+        url: String,
+        body: RequestBody? = null,
+        headers: Map<String, String>? = null
+    ): Response {
+        val requestBuilder = Request.Builder()
+            .url(url)
+        if (body !== null) {
+            requestBuilder.post(body)
+        }
+        headers?.map {
+            requestBuilder.addHeader(it.key, it.value)
+        }
+        val request = requestBuilder.build()
+        return client.newCall(request).execute()
+        /* .use { response ->
+             val body = response.body
+             if (body==null){
+                 return null
+             }else{
+                 return body.string()
+             }
+         }*/
+    }
+
     fun createCookies(
         url: String,
         cookiesName: String,
@@ -104,5 +134,19 @@ class HttpService {
                 }
             })
             .build()
+    }
+
+    fun getPostBodyFromJsonString(jsonString: String): RequestBody {
+        return jsonString.toRequestBody("application/json".toMediaTypeOrNull())
+    }
+
+    fun getPostBodyFromJsonMap(jsonMap: Map<String, String>): RequestBody {
+        val formBody = FormBody.Builder()
+        jsonMap.map {
+            if (it.key.isNotNullAndEmpty() && it.value.isNotNullAndEmpty()) {
+                formBody.add(it.key, it.value)
+            }
+        }
+        return formBody.build()
     }
 }
