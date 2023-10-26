@@ -9,11 +9,11 @@ import me.zzhhoo.bilibili.gson.LoginQrcodeResultGson
 import okio.use
 
 class LoginService {
-    val Http = HttpService()
-    val gson = Gson()
+    private val http = HttpService()
+    private val gson = Gson()
     fun getQrcode() {
         val httpResult =
-            Http.getCallback("https://passport.bilibili.com/x/passport-login/web/qrcode/generate")
+            http.getCallback("https://passport.bilibili.com/x/passport-login/web/qrcode/generate")
                 .use { resp ->
 
                 }
@@ -23,7 +23,7 @@ class LoginService {
         qrcodeKey: String,
         callback: (result: LoginQrcodeCheckResultGson?) -> Unit
     ) {
-        Http.getCallback("https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key=${qrcodeKey}")
+        http.getCallback("https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key=${qrcodeKey}")
             .use { resp ->
                 val httpBody = resp.body
                 val httpString = httpBody?.string()
