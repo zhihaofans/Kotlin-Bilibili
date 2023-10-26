@@ -52,6 +52,8 @@ android {
 
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     val DATASTORE_VERSION = "1.0.0"
     implementation("androidx.core:core-ktx:1.10.1")
