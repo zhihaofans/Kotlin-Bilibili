@@ -1,9 +1,7 @@
 package me.zzhhoo.bilibili.views
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -16,20 +14,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.orhanobut.logger.Logger
 import io.zhihao.library.android.kotlinEx.isNotNullAndEmpty
 import io.zhihao.library.android.util.AlertUtil
-import io.zhihao.library.android.util.AppUtil
 import io.zhihao.library.android.util.EncodeUtil
 import io.zhihao.library.android.util.IntentUtil
 import io.zhihao.library.android.util.ToastUtil
-import me.zzhhoo.bilibili.data.LoginData
 import me.zzhhoo.bilibili.services.LoginService
 import me.zzhhoo.bilibili.services.VipService
 import me.zzhhoo.bilibili.util.ViewUtil
 import me.zzhhoo.bilibili.util.startActivity
 import me.zzhhoo.bilibili.views.ui.theme.BilibiliTheme
-import java.net.URI
 
 class MainActivity : ComponentActivity() {
     private val alertUtil = AlertUtil(this)
@@ -48,6 +42,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun initView() {
+        val isLogin = LoginService().isLogin()
         BilibiliTheme {
             MaterialTheme {
                 Scaffold(
@@ -58,13 +53,22 @@ class MainActivity : ComponentActivity() {
                                 .padding(bottom = 0.dp) // 这里为 TopAppBar 添加上边距
                                 .fillMaxWidth(),
                             title = {
-                                Text(text = "Bilibili")
+                                Text(
+                                    text = "Bilibili" + if (isLogin) {
+                                        "(已登录)"
+                                    } else {
+                                        "(未登录)"
+                                    }
+                                )
                             },
                             actions = {
-                                Icon(
-                                    imageVector = Icons.Default.MoreVert,
-                                    contentDescription = null
-                                )
+                                IconButton(onClick = { startActivity(LoginActivity::class.java) }) {
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = "登录"
+                                    )
+                                }
+
                             },
                         )
                     },
@@ -80,7 +84,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                    }) {}
+                    }) {/*TODO*/ }
                 Spacer(modifier = Modifier.requiredHeight(10.dp))
                 Column(
                     modifier = Modifier
@@ -97,13 +101,8 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun initContentView() {
-        val isLogin = LoginService().isLogin()
         val listItem = listOf(
-            "登录Bilibili" + if (isLogin) {
-                "(已登录)"
-            } else {
-                "(未登录)"
-            },
+            "登录Bilibili",
             "下载",
             "大会员大积分签到"
         )
@@ -118,23 +117,29 @@ class MainActivity : ComponentActivity() {
 //            }
                 }
 
-                1 -> startActivity(DownloadActivity::class.java)
+                //1 -> startActivity(DownloadActivity::class.java)
                 2 -> {
-                    Thread {
-                        vipService.scoreTaskSign { result ->
-                            runOnUiThread {
-                                if (result?.code == 0) {
-                                    toastUtil.showShortToast("签到成功")
-                                } else {
-                                    alertUtil.showInputAlert(
-                                        "签到失败",
-                                        result?.message ?: "未知错误"
-                                    ) { _, _ -> }
+                    if (LoginService().isLogin()) {
+                        Thread {
+                            vipService.scoreTaskSign { result ->
+                                runOnUiThread {
+                                    if (result?.code == 0) {
+                                        toastUtil.showShortToast("签到成功")
+                                    } else {
+                                        alertUtil.showInputAlert(
+                                            "签到失败",
+                                            result?.message ?: "未知错误"
+                                        ) { _, _ -> }
+                                    }
                                 }
                             }
-                        }
-                    }.start()
+                        }.start()
+                    } else {
+                        toastUtil.showShortToast("未登录")
+                    }
                 }
+
+                else -> toastUtil.showShortToast("未完成")
             }
         }
     }
