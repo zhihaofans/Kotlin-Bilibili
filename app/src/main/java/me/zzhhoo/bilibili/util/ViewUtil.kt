@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
-import io.zhihao.library.android.kotlinEx.isNotNullAndEmpty
 
 class ViewUtil(context: Context) {
     private val _context = context

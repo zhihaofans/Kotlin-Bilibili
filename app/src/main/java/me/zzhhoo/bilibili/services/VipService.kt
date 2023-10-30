@@ -3,7 +3,6 @@ package me.zzhhoo.bilibili.services
 import com.google.gson.Gson
 import com.orhanobut.logger.Logger
 import me.zzhhoo.bilibili.data.LoginData
-import me.zzhhoo.bilibili.gson.LoginQrcodeCheckResultGson
 import me.zzhhoo.bilibili.gson.VipTaskSignGson
 import okio.use
 

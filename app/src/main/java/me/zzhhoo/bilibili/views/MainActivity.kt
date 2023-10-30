@@ -1,12 +1,14 @@
 package me.zzhhoo.bilibili.views
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -62,9 +64,26 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             actions = {
-                                IconButton(onClick = { startActivity(LoginActivity::class.java) }) {
+                                IconButton(onClick = {
+                                    if (LoginService().isLogin()) {
+                                        val builder = AlertDialog.Builder(this@MainActivity)
+                                        builder
+                                            .setTitle("已登录")
+                                            .setMessage("要检测登录状态是否有效吗？")
+                                            .setPositiveButton("好的") { dialog, which ->
+                                                // TODO:后面直接跳转个人中心
+                                                startActivity(LoginActivity::class.java)
+                                            }
+                                            .setNegativeButton("不了") { _, _ -> }
+                                        val dialog: AlertDialog = builder.create()
+                                        //    dialog.setCanceledOnTouchOutside(setCanceledOnTouchOutside)
+                                        dialog.show()
+                                    } else {
+                                        startActivity(LoginActivity::class.java)
+                                    }
+                                }) {
                                     Icon(
-                                        imageVector = Icons.Default.MoreVert,
+                                        imageVector = Icons.Rounded.AccountCircle,
                                         contentDescription = "登录"
                                     )
                                 }
@@ -102,23 +121,12 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun initContentView() {
         val listItem = listOf(
-            "登录Bilibili",
-            "下载",
+            "下载(未完成)",
             "大会员大积分签到"
         )
         viewUtil.getListView(listItem) { idx, text ->
             when (idx) {
-                0 -> {
-
-//            if (!LoginService().isLogin()) {
-//                toastUtil.showShortToast("已登录")
-//            } else {
-                    startActivity(LoginActivity::class.java)
-//            }
-                }
-
-                //1 -> startActivity(DownloadActivity::class.java)
-                2 -> {
+                1 -> {
                     if (LoginService().isLogin()) {
                         Thread {
                             vipService.scoreTaskSign { result ->
