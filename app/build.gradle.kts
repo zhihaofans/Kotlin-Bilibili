@@ -3,7 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 android {
-    val SDK_VERSION = 33
+    val SDK_VERSION = 34
     namespace = "me.zzhhoo.bilibili"
     compileSdk = SDK_VERSION
     defaultConfig {
@@ -52,13 +52,11 @@ android {
 
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     val DATASTORE_VERSION = "1.0.0"
-    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
-    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.activity:activity-compose:1.8.0")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
@@ -77,8 +75,8 @@ dependencies {
     // Log库Logger <https://github.com/orhanobut/logger>
     implementation("com.orhanobut:logger:2.2.0")
     // https://github.com/zhihaofans/AndroidLibrary
-    debugImplementation(files("libs/android_library-debug.aar"))
-    releaseImplementation("io.zhihao:AndroidLibrary:0.0.11-jitpackfix-2")
+    debugImplementation(files("libs/android_library-release.aar"))
+    releaseImplementation("com.github.zhihaofans:AndroidLibrary:0.0.13")
     implementation("com.google.code.gson:gson:2.10.1")
     // 图片加载库Coil <https://github.com/coil-kt/coil>
     implementation("io.coil-kt:coil-compose:2.4.0")
@@ -93,7 +91,6 @@ dependencies {
     // 二维码库Zxing <https://github.com/zxing/zxing>
     // 使用参考 <https://github.com/Tamsiree/RxTool/blob/master/RxFeature/src/main/java/com/tamsiree/rxfeature/tool/RxQRCode.kt>
     implementation("com.google.zxing:core:3.5.2")
-
 
 
 }
