@@ -2,7 +2,6 @@ package me.zzhhoo.bilibili.views
 
 import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
-import android.net.UrlQuerySanitizer
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -47,7 +46,6 @@ import me.zzhhoo.bilibili.util.UrlUtil
 import me.zzhhoo.bilibili.util.ViewUtil
 import me.zzhhoo.bilibili.views.ui.theme.BilibiliTheme
 import okio.use
-import java.net.URI
 import java.net.URL
 
 
@@ -75,7 +73,6 @@ class LoginActivity : ComponentActivity() {
                 if (success) {
                     toastUtil.showShortToast("输入Cookie:成功")
                 } else {
-
                     toastUtil.showShortToast("输入Cookie:失败")
                 }
             }
@@ -102,21 +99,23 @@ class LoginActivity : ComponentActivity() {
 
     private fun init() {
         setContent {
-            Text(text = "加载中")
+            Text(text = "请选择登录方式或返回取消登录")
         }
 //        if (!loginService.isLogin()) {
 //            toastUtil.showLongToast("已登录")
 //        } else {
-
         alertUtil.showListAlert(
             title = "登录方式",
-            itemList = arrayOf("输入Cookie与Access Key", "扫码登录")
+            itemList = arrayOf("输入Cookie与Access Key", "扫码登录"),
+            //false
         ) { _, idx ->
             when (idx) {
                 0 -> inputLoginData()
                 1 -> loginByQRcode()
                 else -> toastUtil.showShortToast("不支持")
             }
+        }.setOnCancelListener {
+            finish()
         }
 //        }
     }
@@ -144,8 +143,8 @@ class LoginActivity : ComponentActivity() {
                                     if (qrcodeData !== null && qrcodeData.code == 0 && qrcodeData.data !== null) {
                                         callback.invoke(
                                             true,
-                                            qrcodeData.data?.qrcode_key ?: "",
-                                            qrcodeData.data?.url ?: ""
+                                            qrcodeData.data.qrcode_key ?: "",
+                                            qrcodeData.data.url ?: ""
                                         )
                                     } else {
                                         callback.invoke(false, "", "")
@@ -190,7 +189,7 @@ class LoginActivity : ComponentActivity() {
                 if (qrcodeData != null) {
                     imageBitmap.value = qrcodeData.asImageBitmap()
                 } else {
-                    showToast("生成二维码失败：空白")
+                    toastUtil.showShortToast("生成二维码失败：空白")
                 }
             }
             Logger.d("init.finish.finish")
@@ -256,7 +255,6 @@ class LoginActivity : ComponentActivity() {
 
     private fun checkQrcodeScan() {
         if (loginQrcodeKey.isNotNullAndEmpty()) {
-            showToast(loginQrcodeKey)
             Thread {
                 loginService.checkQrcodeStatus(loginQrcodeKey) { result ->
                     Logger.d(result)
@@ -293,19 +291,14 @@ class LoginActivity : ComponentActivity() {
                                 )
                             }
                         } else {
-                            showToast(data.message)
+                            toastUtil.showShortToast(data.message)
                         }
                     }
                 }
             }.start()
         } else {
-            showToast("空白qrcodeKey")
+            toastUtil.showShortToast("空白qrcodeKey")
         }
     }
 
-    private fun showToast(text: String) {
-        runOnUiThread {
-            Toast.makeText(this@LoginActivity, text, Toast.LENGTH_SHORT).show()
-        }
-    }
 }
