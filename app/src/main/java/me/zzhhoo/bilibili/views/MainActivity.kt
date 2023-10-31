@@ -122,7 +122,8 @@ class MainActivity : ComponentActivity() {
     private fun initContentView() {
         val listItem = listOf(
             "下载(未完成)",
-            "大会员大积分签到"
+            "大会员大积分签到",
+            "大会员卡券兑换"
         )
         viewUtil.getListView(listItem) { idx, text ->
             when (idx) {
@@ -142,6 +143,43 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }.start()
+                    } else {
+                        toastUtil.showShortToast("未登录")
+                    }
+                }
+
+                2 -> {
+                    if (LoginService().isLogin()) {
+                        val list = arrayOf(
+                            "B币券",
+                            "会员购优惠券",
+                            "漫画福利券",
+                            "会员购包邮券",
+                            "漫画商城优惠券",
+                            "装扮体验卡",
+                            "课堂优惠券"
+                        )
+                        alertUtil.showListAlert(
+                            title = "大会员卡券兑换",
+                            itemList = list
+                        ) { _, idx ->
+                            val type = idx + 1
+                            val name=list[idx]
+                            Thread {
+                                vipService.receiveVipPrivilege(type) { result ->
+                                    runOnUiThread {
+                                        if (result?.code == 0) {
+                                            toastUtil.showShortToast("${name}：兑换成功")
+                                        } else {
+                                            alertUtil.showInputAlert(
+                                                "${name}：兑换失败",
+                                                result?.message ?: "未知错误"
+                                            ) { _, _ -> }
+                                        }
+                                    }
+                                }
+                            }.start()
+                        }
                     } else {
                         toastUtil.showShortToast("未登录")
                     }
